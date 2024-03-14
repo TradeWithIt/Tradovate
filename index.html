@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+    <title>Swift OpenAPI Tradovate API</title>
+</head>
+<body>
+    <!-- OpenAPI.yaml Explorer -->
+    <div id="openapi"></div>
+
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+    <script>
+        window.onload = function() {
+            // Load the OpenAPI.yaml file immediately on window load
+            SwaggerUIBundle({
+                url: "https://tradewithit.github.io/Tradovate/Sources/Tradovate/openapi.yaml",
+                dom_id: "#openapi",
+                deepLinking: true,
+                validatorUrl: "none"
+            });
+        }
+    </script>
+</body>
+</html>
