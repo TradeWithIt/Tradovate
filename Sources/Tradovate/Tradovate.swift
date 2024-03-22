@@ -51,16 +51,15 @@ public struct Tradovate {
         shared.client
     }
     
-    public static func setApiKeys(username: String, password: String) {
-        shared.authMiddleware = AuthenticationMiddleware(username: username, password: password)
+    public static func setOAuthToken(_ token: String) {
+        shared.authMiddleware = AuthenticationMiddleware(token: token)
     }
 }
 
 // MARK: Helpers
 
 private struct AuthenticationMiddleware: ClientMiddleware {
-    var username: String
-    var password: String
+    var token: String
 
     func intercept(
         _ request: HTTPRequest,
@@ -70,8 +69,7 @@ private struct AuthenticationMiddleware: ClientMiddleware {
         next: (HTTPRequest, HTTPBody?, URL
         ) async throws -> (HTTPResponse, HTTPBody?)) async throws -> (HTTPResponse, HTTPBody?) {
         var request = request
-        let base64 = try "\(username):\(password)".base64Decoded()
-        request.headerFields[.authorization] = "Basic \(base64)"
+        request.headerFields[.authorization] = "Bearer \(token)"
         return try await next(request, body, baseURL)
     }
 }

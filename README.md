@@ -38,45 +38,41 @@ Set auth:
 ```
 import Tradovate
 
-
-Tradovate.setSandboxApiKeys(
-    apiKey: "",
-    apiSecret: ""
-)
+Tradovate.enviroment = .live
+Tradovate.setOAuthToken("ABC124-MyToken")
 ```
 
 Example use:
 ```
-import AlpacaMarket
-
+import Tradovate
 
 do {
-    let response = try await Tradovate.sandbox.getBarsForStockSymbol(
-        .init(
-            path: .init(symbol: "AAPL"),
-            query: .init(timeframe: "1min")
-        )
+    Tradovate.enviroment = .live
+    Tradovate.setApiKeys(
+        username: "AKGKC0HFHIVRJGHLWMXY",
+        password: "h8VVk45l4BYjeouSJgJkyZcJ3OyyqKwMNp0xBwlm"
     )
+    let response = try await Tradovate.client.accessTokenRequest(body: .json(.init(
+        name:       "Your credentials here",
+        password:   "Your credentials here",
+        appId:      "Sample App",
+        appVersion: "1.0",
+        cid:        "0",
+        sec:        "Your API secret here"
+    )))
     
     switch response {
     case .ok(let okResponse):
-        // Switch over the response content type.
         switch okResponse.body {
-        case .json(let bars):
-            // Print the greeting message.
-            print("👋 \(bars.symbol)")
-            print("👋 \(bars.next_page_token)")
-            let candles = bars.bars.map({ Candle(from: $0) })
+        case .json(let result):
             await MainActor.run {
-                self.candles = candles
+                print("✅ accessToken: ", result.accessToken ?? "")
             }
         }
-    case .undocumented(statusCode: let statusCode, _):
-        // Handle HTTP response status codes not documented in the OpenAPI document.
-        print("🥺 undocumented response: \(statusCode)")
+    case .undocumented(statusCode: let statusCode, let x):
+        print("🥺 undocumented response: \(statusCode)", x, response)
     }
     
 } catch {
-    print(error)
-}
-```
+    print("🔴", error)
+}```
