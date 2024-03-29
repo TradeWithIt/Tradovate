@@ -30,7 +30,10 @@ public struct Tradovate {
 
     private var client: Client {
         Client(
-            serverURL: URL(string: "https://\(env.path).tradovateapi.com")!,
+            serverURL: URL(string: "https://\(env.path).tradovateapi.com/v1")!,
+            configuration: Configuration(
+                dateTranscoder: TimeAndDateTranscoder()
+            ),
             transport: AsyncHTTPClientTransport(),
             middlewares: middlewares
         )
@@ -71,5 +74,67 @@ private struct AuthenticationMiddleware: ClientMiddleware {
         var request = request
         request.headerFields[.authorization] = "Bearer \(token)"
         return try await next(request, body, baseURL)
+    }
+}
+
+private struct TimeAndDateTranscoder: DateTranscoder {
+    let customDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Foundation.Calendar(identifier: .iso8601)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "h:mm MM/dd/yy"
+        return formatter
+    }()
+    
+    
+    let iso8601DateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Foundation.Calendar(identifier: .iso8601)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+        return formatter
+    }()
+
+    let iso8601DateOnlyFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Foundation.Calendar(identifier: .iso8601)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
+
+    let iso8601DateMillisecondsFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Foundation.Calendar(identifier: .iso8601)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
+        return formatter
+    }()
+    
+    func encode(_ date: Date) throws -> String {
+        return iso8601DateMillisecondsFormatter.string(from: date)
+    }
+    
+    func decode(_ dateString: String) throws -> Date {
+        let formatters = [
+            iso8601DateMillisecondsFormatter,
+            iso8601DateFormatter,
+            iso8601DateOnlyFormatter,
+            customDateFormatter
+        ]
+        
+        for formatter in formatters {
+            if let date = formatter.date(from: dateString) {
+                return date
+            }
+        }
+        
+        throw DecodingError.dataCorrupted(
+            .init(codingPath: [], debugDescription: "Invalid date format: \(dateString)")
+        )
     }
 }
