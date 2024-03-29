@@ -4,6 +4,39 @@ import HTTPTypes
 import Foundation
 
 public struct Tradovate {
+    public static let jsonEncoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        encoder.dateEncodingStrategy = .iso8601
+        return encoder
+    }()
+    
+    public static let jsonDecoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.nonConformingFloatDecodingStrategy = .convertFromString(
+            positiveInfinity: "Infinity",
+            negativeInfinity: "-Infinity",
+            nan: "NaN"
+        )
+        decoder.dateDecodingStrategy = .custom({ decoder in
+            let transcoder = TimeAndDateTranscoder()
+            let container = try decoder.singleValueContainer()
+            let value = try container.decode(String.self)
+            if let date = transcoder.iso8601DateFormatter.date(from: value) {
+                return date
+            }
+            if let date = transcoder.iso8601DateMillisecondsFormatter.date(from: value) {
+                return date
+            }
+            if let date = transcoder.iso8601DateOnlyFormatter.date(from: value) {
+                return date
+            }
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date format: \(value)")
+        })
+        return decoder
+    }()
+    
     public enum Enviroment {
         case marketData, demo, live
         
