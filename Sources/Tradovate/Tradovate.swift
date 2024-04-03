@@ -87,7 +87,11 @@ public struct Tradovate {
         shared.client
     }
     
-    public static func setOAuthToken(_ token: String) {
+    public static func setOAuthToken(_ token: String?) {
+        guard let token else {
+            shared.authMiddleware = nil
+            return
+        }
         shared.authMiddleware = AuthenticationMiddleware(token: token)
     }
 }
