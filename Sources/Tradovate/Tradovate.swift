@@ -2,6 +2,7 @@ import OpenAPIRuntime
 import OpenAPIAsyncHTTPClient
 import HTTPTypes
 import Foundation
+import NIOCore
 
 public struct Tradovate {
     public static let jsonEncoder: JSONEncoder = {
@@ -111,6 +112,22 @@ private struct AuthenticationMiddleware: ClientMiddleware {
         var request = request
         request.headerFields[.authorization] = "Bearer \(token)"
         return try await next(request, body, baseURL)
+    }
+}
+
+public extension HTTPBody {
+    /// Writes body into buffer, then decodes and read it as a `String`.
+    /// - Returns: decoded body as `String` using the `UTF-8` encoding.
+    func readAsString() async throws -> String? {
+        switch length {
+        case .unknown:
+            break
+        case .known(let length):
+            var byteBuffer = ByteBuffer()
+            try await collect(upTo: Int(length), into: &byteBuffer)
+            return byteBuffer.readString(length: Int(length))
+        }
+        return nil
     }
 }
 
