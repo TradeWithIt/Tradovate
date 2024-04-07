@@ -163,6 +163,15 @@
       }
     },
     {
+      "identity" : "websocket",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/TradeWithIt/WebSocket",
+      "state" : {
+        "branch" : "main",
+        "revision" : "f56e6d1fec4224125c697157f9cd9d50e45eaa78"
+      }
+    },
+    {
       "identity" : "yams",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/jpsim/Yams",
