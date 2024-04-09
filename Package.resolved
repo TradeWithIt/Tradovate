@@ -168,7 +168,16 @@
       "location" : "https://github.com/TradeWithIt/WebSocket",
       "state" : {
         "branch" : "main",
-        "revision" : "f56e6d1fec4224125c697157f9cd9d50e45eaa78"
+        "revision" : "6b8db9b4b3db996275a6538918d83277c5db8545"
+      }
+    },
+    {
+      "identity" : "websocket-kit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/vapor/websocket-kit",
+      "state" : {
+        "revision" : "4232d34efa49f633ba61afde365d3896fc7f8740",
+        "version" : "2.15.0"
       }
     },
     {
